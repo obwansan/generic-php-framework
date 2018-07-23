@@ -63,9 +63,20 @@ class Router
         */
 
         // Match to the fixed URL format /controller/action
+        // controller and action become the keys and the URL query
+        // string segments become the values in assoc array
         $reg_exp = "/^(?P<controller>[a-z-]+)\/(?P<action>[a-z-]+)$/";
 
+        // $reg_exp - the pattern to search for, as a string
+        // $url - the input string. Searched for a match to $reg_exp
+        // $matches - array filled with results of the search
+
+        // if preg_match returns 1 (i.e. there's a match)
         if (preg_match($reg_exp, $url, $matches)) {
+
+          echo '<pre>';
+          var_dump($matches);
+          echo '</pre>';
             // Get named capture group values
             $params = [];
 
@@ -74,6 +85,26 @@ class Router
                     $params[$key] = $match;
                 }
             }
+            // So, if $url is localhost:8888/turnips/add, $matches is
+            // array(5) {
+              // [0]=>
+              // string(11) "turnips/add"
+              // ["controller"]=>
+              // string(7) "turnips"
+              // [1]=>
+              // string(7) "turnips"
+              // ["action"]=>
+              // string(3) "add"
+              // [2]=>
+              // string(3) "add"
+            // }
+            // and params is
+            // array(2) {
+            //   ["controller"]=>
+            //   string(7) "turnips"
+            //   ["action"]=>
+            //   string(3) "add"
+            // }
 
             $this->params = $params;
             return true;
