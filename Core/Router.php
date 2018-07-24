@@ -27,8 +27,21 @@ class Router
      *
      * @return void
      */
-    public function add($route, $params)
+    public function add($route, $params = [])
     {
+        // preg_replace($pattern, $replacement, $subject)
+        // Searches subject for matches to pattern and replaces them with replacement.
+
+        // Convert the route to a regular expression: escape forward slashes
+        // replaces forward slashes '/' with escaped forward slashes '\/'
+        $route = preg_replace('/\//', '\\/', $route);
+
+        // Convert variables e.g. {controller}
+        $route = preg_replace('/\{([a-z]+)\}/', '(?P<\1>[a-z-]+)', $route);
+
+        // Add start and end delimiters, and case insensitive flag
+        $route = '/^' . $route . '$/i';
+
         $this->routes[$route] = $params;
     }
 
@@ -52,61 +65,25 @@ class Router
      */
     public function match($url)
     {
-        /*
+        // Match to the fixed URL format /controller/action
+        //$reg_exp = "/^(?P<controller>[a-z-]+)\/(?P<action>[a-z-]+)$/";
+
         foreach ($this->routes as $route => $params) {
-            if ($url == $route) {
+
+            // preg_match($pattern, $subject, $matches)
+            // Searches subject for a match to the regular expression given in pattern.
+            // $matches is filled with results of the search
+            // preg_match returns a 1 or 0
+            if (preg_match($route, $url, $matches)) {
+                foreach ($matches as $key => $match) {
+                    if (is_string($key)) {
+                        $params[$key] = $match;
+                    }
+                }
+
                 $this->params = $params;
                 return true;
             }
-        }
-        */
-
-        // Match to the fixed URL format /controller/action
-        // controller and action become the keys and the URL query
-        // string segments become the values in assoc array
-        $reg_exp = "/^(?P<controller>[a-z-]+)\/(?P<action>[a-z-]+)$/";
-
-        // $reg_exp - the pattern to search for, as a string
-        // $url - the input string. Searched for a match to $reg_exp
-        // $matches - array filled with results of the search
-
-        // if preg_match returns 1 (i.e. there's a match)
-        if (preg_match($reg_exp, $url, $matches)) {
-
-          echo '<pre>';
-          var_dump($matches);
-          echo '</pre>';
-            // Get named capture group values
-            $params = [];
-
-            foreach ($matches as $key => $match) {
-                if (is_string($key)) {
-                    $params[$key] = $match;
-                }
-            }
-            // So, if $url is localhost:8888/turnips/add, $matches is
-            // array(5) {
-              // [0]=>
-              // string(11) "turnips/add"
-              // ["controller"]=>
-              // string(7) "turnips"
-              // [1]=>
-              // string(7) "turnips"
-              // ["action"]=>
-              // string(3) "add"
-              // [2]=>
-              // string(3) "add"
-            // }
-            // and params is
-            // array(2) {
-            //   ["controller"]=>
-            //   string(7) "turnips"
-            //   ["action"]=>
-            //   string(3) "add"
-            // }
-
-            $this->params = $params;
-            return true;
         }
 
         return false;
