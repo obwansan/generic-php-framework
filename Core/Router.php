@@ -119,7 +119,7 @@ class Router
     {
         $url = $this->removeQueryStringVariables($url);
 
-        if ($this->match($url)) {
+        if ($this->match($url))
             $controller = $this->params['controller'];
             $controller = $this->convertToStudlyCaps($controller);
             // add a name space before controller class name
@@ -131,17 +131,16 @@ class Router
                 $action = $this->params['action'];
                 $action = $this->convertToCamelCase($action);
 
-                if (is_callable([$controller_object, $action])) {
+                if (preg_match('/action$/i', $action) == 0) {
                     $controller_object->$action();
-
                 } else {
-                    echo "Method $action (in controller $controller) not found";
-                }
+                    echo "Method $action in controller $controller cannot be called directly - remove the Action suffix to call this method");
+                  }
             } else {
                 echo "Controller class $controller not found";
-            }
+              }
         } else {
-            echo 'No route matched.';
+          echo 'No route matched.';
         }
     }
 
