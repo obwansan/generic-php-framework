@@ -7,14 +7,30 @@
  */
 
 // Require the controller class
-require '../App/Controllers/Posts.php';
+// require '../App/Controllers/Posts.php';
+
+/**
+ * Autoloader
+ */
+spl_autoload_register(function ($class) {
+
+    $root = dirname(__DIR__);   // get the parent directory
+
+    // Replacing the backslashes of the class namespace with the forward
+    // slashes of the directory path
+    $file = $root . '/' . str_replace('\\', '/', $class) . '.php';
+
+    if (is_readable($file)) {
+        require $root . '/' . str_replace('\\', '/', $class) . '.php';
+    }
+});
 
 /**
  * Routing
  */
-require '../Core/Router.php';
+// require '../Core/Router.php';
 
-$router = new Router();
+$router = new Core\Router();
 
 // Add the routes
 $router->add('', ['controller' => 'Home', 'action' => 'index']);
@@ -40,4 +56,7 @@ if ($router->match($url)) {
     echo "No route found for URL '$url'";
 }
 */
+
+
+
 $router->dispatch($_SERVER['QUERY_STRING']);
