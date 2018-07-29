@@ -7,9 +7,6 @@ namespace Core;
  *
  * PHP version 5.4
  */
-
-// abstract class so not going to create any objects from this class directly,
-// just other classes that extend it.
 abstract class Controller
 {
 
@@ -47,10 +44,8 @@ abstract class Controller
         $method = $name . 'Action';
 
         if (method_exists($this, $method)) {
-            // even though its in an if statement, the $this->before() calls the before method.
             if ($this->before() !== false) {
                 call_user_func_array([$this, $method], $args);
-                // and this calls the after method
                 $this->after();
             }
         } else {
@@ -75,5 +70,4 @@ abstract class Controller
     protected function after()
     {
     }
-
 }

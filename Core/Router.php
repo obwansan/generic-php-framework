@@ -9,6 +9,7 @@ namespace Core;
  */
 class Router
 {
+
     /**
      * Associative array of routes (the routing table)
      * @var array
@@ -31,14 +32,10 @@ class Router
      */
     public function add($route, $params = [])
     {
-        // preg_replace($pattern, $replacement, $subject)
-        // Searches subject for matches to pattern and replaces them with replacement.
-
         // Convert the route to a regular expression: escape forward slashes
-        // replaces forward slashes '/' with escaped forward slashes '\/'
         $route = preg_replace('/\//', '\\/', $route);
 
-        // Convert variables e.g. {controller} into capture groups
+        // Convert variables e.g. {controller}
         $route = preg_replace('/\{([a-z]+)\}/', '(?P<\1>[a-z-]+)', $route);
 
         // Convert variables with custom regular expressions e.g. {id:\d+}
@@ -48,7 +45,6 @@ class Router
         $route = '/^' . $route . '$/i';
 
         $this->routes[$route] = $params;
-
     }
 
     /**
@@ -71,17 +67,7 @@ class Router
      */
     public function match($url)
     {
-        // Match to the fixed URL format /controller/action
-        //$reg_exp = "/^(?P<controller>[a-z-]+)\/(?P<action>[a-z-]+)$/";
-
-        // loop over associative array of routes (the routing table)
-        // Each route is a URL and
         foreach ($this->routes as $route => $params) {
-
-            // preg_match($pattern, $subject, $matches)
-            // Searches subject for a match to the regular expression given in pattern.
-            // $matches is filled with results of the search
-            // preg_match returns a 1 if there's a match, 0 if not
             if (preg_match($route, $url, $matches)) {
                 // Get named capture group values
                 foreach ($matches as $key => $match) {
@@ -89,6 +75,7 @@ class Router
                         $params[$key] = $match;
                     }
                 }
+
                 $this->params = $params;
                 return true;
             }
@@ -119,11 +106,11 @@ class Router
     {
         $url = $this->removeQueryStringVariables($url);
 
-        if ($this->match($url))
+        if ($this->match($url)) {
             $controller = $this->params['controller'];
             $controller = $this->convertToStudlyCaps($controller);
-            // add a name space before controller class name
-            $controller = "App\Controllers\\$controller";
+            //$controller = "App\Controllers\\$controller";
+            $controller = $this->getNamespace() . $controller;
 
             if (class_exists($controller)) {
                 $controller_object = new $controller($this->params);
@@ -131,21 +118,22 @@ class Router
                 $action = $this->params['action'];
                 $action = $this->convertToCamelCase($action);
 
-                if (preg_match('/action$/i', $action) == 0) {
+                if (is_callable([$controller_object, $action])) {
                     $controller_object->$action();
+
                 } else {
-                    echo "Method $action in controller $controller cannot be called directly - remove the Action suffix to call this method");
-                  }
+                    echo "Method $action (in controller $controller) not found";
+                }
             } else {
                 echo "Controller class $controller not found";
-              }
+            }
         } else {
-          echo 'No route matched.';
+            echo 'No route matched.';
         }
     }
 
     /**
-     * Convert a string with hyphens to StudlyCaps,
+     * Convert the string with hyphens to StudlyCaps,
      * e.g. post-authors => PostAuthors
      *
      * @param string $string The string to convert
@@ -196,14 +184,8 @@ class Router
     protected function removeQueryStringVariables($url)
     {
         if ($url != '') {
-            // Splits the url on the &. Returns an array of 2 items.
             $parts = explode('&', $url, 2);
 
-            // if the first character of the first element of the parts array
-            // is not '=' assign it to the url variable, (i.e. if there aren't any
-            // query string variables), else assign nothing (i.e.) remove the query string.
-            // Don't understand why & isn't the first charachter if explode splits on
-            // the ampersand?
             if (strpos($parts[0], '=') === false) {
                 $url = $parts[0];
             } else {
@@ -214,4 +196,20 @@ class Router
         return $url;
     }
 
+    /**
+     * Get the namespace for the controller class. The namespace defined in the
+     * route parameters is added if present.
+     *
+     * @return string The request URL
+     */
+    protected function getNamespace()
+    {
+        $namespace = 'App\Controllers\\';
+
+        if (array_key_exists('namespace', $this->params)) {
+            $namespace .= $this->params['namespace'] . '\\';
+        }
+
+        return $namespace;
+    }
 }

@@ -9,6 +9,7 @@ namespace App\Controllers;
  */
 class Home extends \Core\Controller
 {
+
     /**
      * Before filter
      *
@@ -17,7 +18,7 @@ class Home extends \Core\Controller
     protected function before()
     {
         echo "(before) ";
-        return false;
+        //return false;
     }
 
     /**
