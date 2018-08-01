@@ -5,6 +5,10 @@
  *
  * PHP version 5.4
  */
+ /**
+  * Twig
+  */
+ require_once dirname(__DIR__) . '/vendor/Twig/lib/Twig/Autoloader.php';
 
 /**
  * Autoloader
@@ -28,5 +32,5 @@ $router->add('', ['controller' => 'Home', 'action' => 'index']);
 $router->add('{controller}/{action}');
 $router->add('{controller}/{id:\d+}/{action}');
 $router->add('admin/{controller}/{action}', ['namespace' => 'Admin']);
-    
+
 $router->dispatch($_SERVER['QUERY_STRING']);

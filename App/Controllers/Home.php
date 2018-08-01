@@ -40,10 +40,13 @@ class Home extends \Core\Controller
      */
     public function indexAction()
     {
-      // Can access render method with scope resolution operator because
-      // render is a static function.
-      // Passing a $view and $args =[] to View->render method.  
+      /*
       View::render('Home/index.php', [
+          'name'    => 'Dave',
+          'colours' => ['red', 'green', 'blue']
+      ]);
+      */
+      View::renderTemplate('Home/index.html', [
           'name'    => 'Dave',
           'colours' => ['red', 'green', 'blue']
       ]);
