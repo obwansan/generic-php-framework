@@ -9,7 +9,7 @@
 /**
  * Twig
  */
-require_once dirname(__DIR__) . '/vendor/Twig/lib/Twig/Autoloader.php';
+require_once dirname(__DIR__) . '/vendor/twig/twig/lib/Twig/Autoloader.php';
 Twig_Autoloader::register();
 
 
@@ -35,5 +35,5 @@ $router->add('', ['controller' => 'Home', 'action' => 'index']);
 $router->add('{controller}/{action}');
 $router->add('{controller}/{id:\d+}/{action}');
 $router->add('admin/{controller}/{action}', ['namespace' => 'Admin']);
-    
+
 $router->dispatch($_SERVER['QUERY_STRING']);
